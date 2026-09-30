@@ -78,15 +78,40 @@ export class BrowserAgent {
     }
 
     const el = targetMark.elementRef;
+
+    // Verify element is still attached to the DOM
+    if (!document.contains(el)) {
+      return {
+        success: false,
+        log: `Mark #${plan.targetMarkId} has become detached from the DOM. Re-perception required.`,
+        needsReperception: true
+      };
+    }
+
     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
     if (plan.action === 'click') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       el.focus();
+      el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, view: window }));
+      el.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, view: window }));
       el.click();
       return { success: true, log: `Successfully clicked Mark #${plan.targetMarkId}` };
     } else if (plan.action === 'type') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       el.focus();
-      el.value = plan.value;
+      
+      // Handle React Synthetic Events for inputs
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(el), 'value'
+      )?.set || Object.getOwnPropertyDescriptor(el.constructor.prototype, 'value')?.set;
+      
+      if (nativeInputValueSetter) {
+        nativeInputValueSetter.call(el, plan.value);
+      } else {
+        el.value = plan.value;
+      }
+      
       el.dispatchEvent(new Event('input', { bubbles: true }));
       el.dispatchEvent(new Event('change', { bubbles: true }));
       return { success: true, log: `Successfully typed "${plan.value}" into Mark #${plan.targetMarkId}` };

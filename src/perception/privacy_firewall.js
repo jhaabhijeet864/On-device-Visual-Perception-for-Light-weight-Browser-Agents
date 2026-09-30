@@ -53,12 +53,29 @@ export class PrivacyFirewall {
     let sanitized = text;
     let redactedCount = 0;
 
+    // 1. Standard PII Patterns
     for (const [key, pattern] of Object.entries(this.piiPatterns)) {
       sanitized = sanitized.replace(pattern, (match) => {
         redactedCount++;
         return `[REDACTED_${key.toUpperCase()}]`;
       });
     }
+
+    // 2. Generic-high-entropy pattern check (Potential API Keys/Tokens)
+    // Looks for strings of 20+ alphanumeric characters with mixed case/numbers (common in keys)
+    const highEntropyPattern = /\b[a-zA-Z0-9]{20,}\b/g;
+    sanitized = sanitized.replace(highEntropyPattern, (match) => {
+      // Avoid redacting common long words by checking for mixed character types
+      const hasDigit = /\d/.test(match);
+      const hasUpper = /[A-Z]/.test(match);
+      const hasLower = /[a-z]/.test(match);
+
+      if ((hasDigit && hasUpper) || (hasDigit && hasLower)) {
+        redactedCount++;
+        return `[REDACTED_SECRET]`;
+      }
+      return match;
+    });
 
     return {
       sanitizedText: sanitized,

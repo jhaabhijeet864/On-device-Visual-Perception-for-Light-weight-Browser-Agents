@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Build VLM Payload
       const tokens = perceptionResp.data.marksSummary.map(m => ({
           id: m.id.toString(),
-          bbox: [0, 0, 0, 0], // In real app, fetch actual bbox from perception.marks
+          bbox: m.bbox || [0, 0, 0, 0], // Use actual bbox from perception if available
           label: m.text
       }));
 
@@ -148,6 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const vlmResult = await response.json();
       const vlmLatency = Math.round(performance.now() - vlmStartTime);
+      
+      if (vlmResult.detail) {
+          throw new Error(`VLM Backend Error: ${JSON.stringify(vlmResult.detail)}`);
+      }
+      if (!vlmResult.action) {
+          throw new Error(`VLM returned invalid response: ${JSON.stringify(vlmResult)}`);
+      }
+
       logTrajectoryStep(`VLM: ${vlmResult.thought}`, vlmLatency);
 
       // 3. Execute VLM Action
@@ -168,7 +176,14 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       if (execResponse && execResponse.result) {
-          logTrajectoryStep(execResponse.result.execution.log, 25);
+          const result = execResponse.result.execution;
+          logTrajectoryStep(result.log, 25);
+
+          if (result.needsReperception) {
+            logTrajectoryStep('DOM drifted. Triggering re-perception...', 0);
+            // Automatically trigger perception again
+            btnPerceive.click();
+          }
       }
     } catch (e) {
       logTrajectoryStep(`Error: ${e.message}`, 0);

@@ -17,7 +17,7 @@ class TokenMetadata(BaseModel):
 class RequestPayload(BaseModel):
     taskId: str
     objective: str
-    redactedImage: str  # Base64 encoded WebP
+    redactedImage: Optional[str] = ""  # Base64 encoded WebP
     tokens: List[TokenMetadata]
     viewportSize: dict
 

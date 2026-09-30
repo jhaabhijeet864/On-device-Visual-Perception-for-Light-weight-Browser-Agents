@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"],
+      "js": ["loader.js"],
       "css": ["assets/sidepanel.css"],
       "run_at": "document_idle"
     }
@@ -32,6 +32,7 @@
   "web_accessible_resources": [
     {
       "resources": [
+        "content.js",
         "src/styles/*",
         "src/perception/*",
         "assets/*"

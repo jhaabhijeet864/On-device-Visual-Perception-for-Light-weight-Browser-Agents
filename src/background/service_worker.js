@@ -42,7 +42,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
       chrome.tabs.captureVisibleTab(tabs[0].windowId, { format: 'png' }, (dataUrl) => {
-        sendResponse({ status: 'success', dataUrl });
+        if (chrome.runtime.lastError) {
+          sendResponse({ status: 'error', error: chrome.runtime.lastError.message });
+        } else {
+          sendResponse({ status: 'success', dataUrl });
+        }
       });
     });
     return true;
@@ -59,6 +63,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         },
         (response) => sendResponse(response)
       );
+    }).catch(err => {
+      sendResponse({ status: 'error', error: err.message });
     });
     return true;
   }
