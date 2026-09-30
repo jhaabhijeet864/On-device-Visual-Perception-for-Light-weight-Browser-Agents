@@ -1,0 +1,28 @@
+{
+  "name": "on-device-visual-perception-agent",
+  "version": "1.0.0",
+  "description": "On-device Visual Perception for Light-weight Browser Agents (SIH 26171 - ISRO)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.17.2"
+  },
+  "devDependencies": {
+    "vite": "^5.2.0"
+  },
+  "keywords": [
+    "chrome-extension",
+    "visual-perception",
+    "webgpu",
+    "browser-agent",
+    "sih2026",
+    "privacy-firewall",
+    "som-tagging"
+  ],
+  "author": "SIH 26171 Team",
+  "license": "MIT"
+}
