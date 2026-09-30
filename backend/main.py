@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, Literal, List
 import uvicorn
 import base64
-from .inference.vlm_engine import VLMInferenceEngine
+from inference.vlm_engine import VLMInferenceEngine
 
 app = FastAPI(title="AegisEdge Reasoning Backend")
 
