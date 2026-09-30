@@ -4,6 +4,15 @@ node_modules/
 # Build outputs
 dist/
 
+# Large ML Model Weights & Caches (Keep repo lightweight)
+models/server/*
+models/onnx/*
+*.safetensors
+*.bin
+*.onnx
+*.pt
+.cache/
+
 # Logs & Temporary files
 *.log
 .DS_Store
