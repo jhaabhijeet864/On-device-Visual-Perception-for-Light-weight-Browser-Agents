@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node -e \"require('fs').copyFileSync('manifest.json', 'dist/manifest.json'); require('fs').cpSync('assets', 'dist/assets', {recursive: true, force: false})\"",
+    "build": "vite build && vite build -c vite.config.content.js && node -e \"require('fs').copyFileSync('manifest.json', 'dist/manifest.json'); require('fs').cpSync('assets', 'dist/assets', {recursive: true, force: false})\"",
     "preview": "vite preview"
   },
   "dependencies": {

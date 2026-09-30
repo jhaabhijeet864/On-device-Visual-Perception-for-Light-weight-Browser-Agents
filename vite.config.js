@@ -8,7 +8,6 @@ export default defineConfig({
       input: {
         sidepanel: resolve(__dirname, 'src/sidepanel/index.html'),
         background: resolve(__dirname, 'src/background/service_worker.js'),
-        content: resolve(__dirname, 'src/content/content_script.js'),
         offscreen: resolve(__dirname, 'src/offscreen/offscreen.html')
       },
       output: {
