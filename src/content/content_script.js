@@ -51,7 +51,8 @@ class ContentScriptController {
       sensitiveCount: perception.sensitiveMasks.length,
       latencyMs: perception.latencyMs,
       webgpuAccelerated: perception.webgpuAccelerated,
-      marksSummary: perception.marks.map(m => ({ id: m.id, text: m.text, tag: m.tagName }))
+      marksSummary: perception.marks.map(m => ({ id: m.id, text: m.text, tag: m.tagName })),
+      sensitiveMasks: perception.sensitiveMasks
     };
   }
 

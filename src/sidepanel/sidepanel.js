@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const response = await sendMessageToTab({ type: 'PERCEIVE_SCREEN' });
 
     if (response && response.data) {
-      const { markCount, sensitiveCount, latencyMs, webgpuAccelerated } = response.data;
+      const { markCount, sensitiveCount, latencyMs, webgpuAccelerated, sensitiveMasks } = response.data;
       valLatency.innerText = `${latencyMs} ms`;
       valMarks.innerText = markCount;
       valPrivacyMasks.innerText = `${sensitiveCount} Masked Zones`;
@@ -75,6 +75,21 @@ document.addEventListener('DOMContentLoaded', () => {
       isSomVisible = true;
 
       logTrajectoryStep(`Perceived ${markCount} SOM Marks (${sensitiveCount} PII masked)`, latencyMs);
+
+      // Capture and Mask screenshot
+      const captureResponse = await new Promise(resolve => chrome.runtime.sendMessage({ type: 'CAPTURE_VISIBLE_TAB' }, resolve));
+      if (captureResponse && captureResponse.dataUrl) {
+          const maskResponse = await new Promise(resolve => chrome.runtime.sendMessage({ 
+              type: 'REDACT_SCREENSHOT_OFFSCREEN', 
+              dataUrl: captureResponse.dataUrl, 
+              maskedZones: sensitiveMasks
+          }, resolve));
+          
+          if (maskResponse && maskResponse.status === 'success') {
+              logTrajectoryStep(`PII Masked on Image (${maskResponse.webgpuAccelerated ? 'WebGPU' : 'CPU'})`, 50);
+              // Store or send sanitized image as needed
+          }
+      }
     }
 
     btnPerceive.disabled = false;
