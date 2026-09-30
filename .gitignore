@@ -5,12 +5,14 @@ node_modules/
 dist/
 
 # Large Model Weights & Cache (Local runtime only)
-models/*
-!models/*.py
+models/
+!models/**/*.py
 .cache/
 *.safetensors
 *.bin
 *.onnx
+*.pt
+*.pth
 
 # Logs & Temporary files
 *.log
