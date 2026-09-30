@@ -2,7 +2,7 @@
 import { pipeline, env } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
 
 // Configure environment for browser compatibility
-env.allowLocalModels = false;
+env.allowLocalModels = true;
 env.useBrowserCache = true;
 
 let detector = null;
@@ -12,7 +12,7 @@ async function initDetector() {
     // We use a lightweight object detection model (e.g., DETR or MobileNet based)
     // For this implementation, we use a generic object detection pipeline
     // In production, this would be a custom-trained PII-detection ONNX model
-    detector = await pipeline('object-detection', 'Xenova/detr-resnet-50');
+    detector = await pipeline('object-detection', './models/onnx/detr-resnet-50');
   }
   return detector;
 }

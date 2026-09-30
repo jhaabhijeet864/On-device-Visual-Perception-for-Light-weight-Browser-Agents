@@ -8,14 +8,14 @@ from PIL import Image
 
 # We use Qwen2-VL-2B or Phi-3.5-Vision as per the architectural plan
 # For the prototype, we use a representative open-weights VLM
-MODEL_ID = "Qwen/Qwen2-VL-2B-Instruct"
+MODEL_PATH = "models/server/Qwen2-VL"
 
 class VLMInferenceEngine:
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        self.processor = AutoProcessor.from_pretrained(MODEL_ID)
+        self.processor = AutoProcessor.from_pretrained(MODEL_PATH)
         self.model = AutoModelForVision2Seq.from_pretrained(
-            MODEL_ID,
+            MODEL_PATH,
             torch_dtype="auto",
             device_map="auto"
         )
