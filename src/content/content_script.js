@@ -31,7 +31,7 @@ class ContentScriptController {
           break;
 
         case 'EXECUTE_AGENT_GOAL':
-          const result = this.executeGoal(message.goal);
+          const result = message.plan ? this.executeDirectPlan(message.plan) : this.executeGoal(message.goal);
           sendResponse({ status: 'success', result });
           break;
 
@@ -110,6 +110,21 @@ class ContentScriptController {
     } else {
       this.runPerception();
     }
+  }
+
+  executeDirectPlan(plan) {
+    if (!this.currentMarks || this.currentMarks.length === 0) {
+      this.runPerception();
+    }
+    const execution = this.agent.executeAction(plan, this.currentMarks);
+
+    // Re-run perception to refresh SOM after interaction
+    setTimeout(() => this.runPerception(), 400);
+
+    return {
+      plan,
+      execution
+    };
   }
 
   executeGoal(goal) {

@@ -105,17 +105,73 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     btnExecute.disabled = true;
-    btnExecute.innerText = '⚡ Executing...';
+    btnExecute.innerText = '⚡ VLM Reasoning...';
 
-    const response = await sendMessageToTab({
-      type: 'EXECUTE_AGENT_GOAL',
-      goal: goal
-    });
+    try {
+      // 1. Perceive & Mask
+      const perceptionResp = await sendMessageToTab({ type: 'PERCEIVE_SCREEN' });
+      if (!perceptionResp || !perceptionResp.data) throw new Error('Perception failed');
+      
+      const captureResp = await new Promise(resolve => chrome.runtime.sendMessage({ type: 'CAPTURE_VISIBLE_TAB' }, resolve));
+      let sanitizedImage = '';
+      if (captureResp && captureResp.dataUrl) {
+          const maskResp = await new Promise(resolve => chrome.runtime.sendMessage({ 
+              type: 'REDACT_SCREENSHOT_OFFSCREEN', 
+              dataUrl: captureResp.dataUrl, 
+              maskedZones: perceptionResp.data.sensitiveMasks
+          }, resolve));
+          sanitizedImage = maskResp.sanitizedDataUrl;
+      }
 
-    if (response && response.result) {
-      const { plan, execution } = response.result;
-      logTrajectoryStep(`Planned: ${plan.description}`, 12);
-      logTrajectoryStep(execution.log, 25);
+      // 2. Build VLM Payload
+      const tokens = perceptionResp.data.marksSummary.map(m => ({
+          id: m.id.toString(),
+          bbox: [0, 0, 0, 0], // In real app, fetch actual bbox from perception.marks
+          label: m.text
+      }));
+
+      const vlmPayload = {
+          taskId: `task_${Date.now()}`,
+          objective: goal,
+          redactedImage: sanitizedImage,
+          tokens: tokens,
+          viewportSize: { width: window.innerWidth, height: window.innerHeight }
+      };
+
+      logTrajectoryStep('Sending context to VLM backend...', 0);
+      const vlmStartTime = performance.now();
+      const response = await fetch('http://localhost:8000/reason', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(vlmPayload)
+      });
+
+      const vlmResult = await response.json();
+      const vlmLatency = Math.round(performance.now() - vlmStartTime);
+      logTrajectoryStep(`VLM: ${vlmResult.thought}`, vlmLatency);
+
+      // 3. Execute VLM Action
+      let targetMarkId = null;
+      if (vlmResult.target_token) {
+          const match = vlmResult.target_token.match(/\d+/);
+          if (match) targetMarkId = parseInt(match[0], 10);
+      }
+
+      const execResponse = await sendMessageToTab({
+          type: 'EXECUTE_AGENT_GOAL',
+          plan: {
+              action: vlmResult.action.toLowerCase(),
+              targetMarkId: targetMarkId,
+              value: vlmResult.value,
+              description: `VLM Action: ${vlmResult.action} on Token ${vlmResult.target_token}`
+          }
+      });
+
+      if (execResponse && execResponse.result) {
+          logTrajectoryStep(execResponse.result.execution.log, 25);
+      }
+    } catch (e) {
+      logTrajectoryStep(`Error: ${e.message}`, 0);
     }
 
     btnExecute.disabled = false;
