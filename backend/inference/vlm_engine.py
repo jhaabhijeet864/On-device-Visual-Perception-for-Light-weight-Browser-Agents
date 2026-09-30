@@ -1,5 +1,5 @@
 import torch
-from transformers import AutoProcessor, AutoModelForVision2Seq
+from transformers import AutoProcessor, AutoModelForCausalLM
 from pydantic import BaseModel, Field
 from typing import Optional, Literal, List
 import base64
@@ -8,13 +8,14 @@ from PIL import Image
 
 # We use Qwen2-VL-2B or Phi-3.5-Vision as per the architectural plan
 # For the prototype, we use a representative open-weights VLM
-MODEL_PATH = "models/server/Qwen2-VL"
+import os
+MODEL_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../models/server/Qwen2-VL"))
 
 class VLMInferenceEngine:
     def __init__(self):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.processor = AutoProcessor.from_pretrained(MODEL_PATH)
-        self.model = AutoModelForVision2Seq.from_pretrained(
+        self.model = AutoModelForCausalLM.from_pretrained(
             MODEL_PATH,
             torch_dtype="auto",
             device_map="auto"
