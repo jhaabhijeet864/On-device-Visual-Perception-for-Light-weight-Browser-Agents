@@ -3,84 +3,63 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Visual Perception Agent (SIH 26171)</title>
+  <title>Agent Controller</title>
   <link rel="stylesheet" href="../styles/main.css">
 </head>
 <body>
   <div class="app-container">
-    <!-- Header Component -->
     <header class="app-header">
       <div class="brand-badge">
-        <div class="brand-logo">ISRO</div>
-        <div class="brand-title">SIH 26171 Agent</div>
+        <div class="brand-title">ISRO Browser Agent</div>
+        <div class="brand-subtitle">SIH 26171</div>
       </div>
       <div class="system-status">
         <span class="status-dot"></span>
-        <span id="statusText">ON-DEVICE PERCEIVING</span>
+        <span id="statusText">Ready</span>
       </div>
     </header>
 
-    <!-- Telemetry Dashboard -->
     <div class="telemetry-grid">
       <div class="metric-card">
-        <span class="metric-label">Perception Latency</span>
+        <span class="metric-label">Engine</span>
+        <span class="metric-value" id="valHardware">WebGPU</span>
+      </div>
+      <div class="metric-card">
+        <span class="metric-label">Latency</span>
         <span class="metric-value" id="valLatency">-- ms</span>
       </div>
-      <div class="metric-card">
-        <span class="metric-label">Active SOM Marks</span>
-        <span class="metric-value" id="valMarks">0</span>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">Hardware Engine</span>
-        <span class="metric-value" id="valHardware" style="font-size: 11px;">WebGPU</span>
-      </div>
     </div>
 
-    <!-- Privacy Firewall Status -->
     <div class="firewall-banner">
-      <div class="firewall-status">
-        <span>🛡️ Local Privacy Firewall Active</span>
-      </div>
-      <span id="valPrivacyMasks" style="font-weight: 700; font-family: var(--font-mono);">0 Masked Zones</span>
+      <div class="firewall-status">Local Privacy Firewall</div>
+      <span id="valPrivacyMasks" class="text-mono text-muted">0 Masked</span>
     </div>
 
-    <!-- Main Agent Control Card -->
     <div class="control-card">
-      <div class="section-title">
-        <span>Agent Goal / Command</span>
-        <span style="font-size: 9px; color: var(--accent-cyan);">ON-DEVICE VLM</span>
-      </div>
-      <div class="input-group">
-        <textarea 
-          id="promptInput" 
-          class="prompt-textarea" 
-          placeholder="e.g. Search for NISAR telemetry data, or click mark #3..."
-        ></textarea>
+      <div class="section-title">Instructions</div>
+      <textarea 
+        id="promptInput" 
+        class="prompt-textarea" 
+        placeholder="e.g. Find the download link for the NISAR dataset..."
+      ></textarea>
+      
+      <div class="button-group">
+        <button id="btnPerceive" class="btn btn-secondary">Analyze Page</button>
+        <button id="btnExecute" class="btn btn-primary">Execute</button>
       </div>
       <div class="button-group">
-        <button id="btnPerceive" class="btn btn-primary">
-          <span>👁️ Perceive Screen</span>
-        </button>
-        <button id="btnExecute" class="btn btn-secondary">
-          <span>⚡ Execute Step</span>
-        </button>
-      </div>
-      <div class="button-group" style="margin-top: 4px;">
-        <button id="btnToggleSOM" class="btn btn-secondary" style="font-size: 11px;">
-          <span>🏷️ Toggle SOM Tags</span>
-        </button>
+        <button id="btnToggleSOM" class="btn btn-secondary">Toggle Developer Tags</button>
       </div>
     </div>
 
-    <!-- Execution Trajectory & Logs -->
     <div class="perception-viewport">
-      <div class="section-title">
-        <span>Execution Trajectory Log</span>
-        <span id="stepCount" style="font-size: 10px; color: var(--text-muted);">0 Steps</span>
+      <div class="section-title" style="display: flex; justify-content: space-between;">
+        <span>Activity Log</span>
+        <span id="stepCount" class="text-muted text-mono">0</span>
       </div>
       <div class="trajectory-list" id="trajectoryList">
         <div class="step-item">
-          <span>System Initialized: On-device perception ready.</span>
+          <span>Agent initialized.</span>
           <span class="step-latency">0ms</span>
         </div>
       </div>
